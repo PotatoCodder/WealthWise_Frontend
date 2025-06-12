@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   return (
     <View style={styles.mainView}>
       {/* 🔷 Header */}
