@@ -29,7 +29,15 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="BLunch" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="profile" options={{ headerShown: false}} />
+        <Stack.Screen
+          name="profile"
+          options={{
+            headerShown: true,
+            headerTransparent: true, // Makes it transparent
+            headerTitle: 'Profile', // Removes the title
+            headerTintColor: '#fff', // Makes the back arrow white (or any color you want)
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
 

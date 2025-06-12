@@ -89,6 +89,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
+          headerTintColor: '#fff',
           tabBarIcon: ({ color, focused }) => (
             <Image
               source={require('../../assets/tabicons/Profile.png')}
