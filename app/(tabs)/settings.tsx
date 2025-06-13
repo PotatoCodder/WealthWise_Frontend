@@ -10,10 +10,10 @@ export default function Settings() {
   };
 
   const settings = [
-    { label: 'Profile', route: '/profile' },
-    { label: 'Security', route: '/security' },
-    { label: 'Privacy Policy', route: '/privacy' },
-    { label: 'Terms of Use', route: '/terms' },
+    { label: 'Profile', route: '../screens/profile' },
+    { label: 'Security', route: '/screens/security' },
+    { label: 'Privacy Policy', route: '/screens/privacy' },
+    { label: 'Terms of Use', route: '/screens/term' },
     { label: 'Logout', route: '/logout' },
   ];
 

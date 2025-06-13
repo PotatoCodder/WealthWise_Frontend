@@ -21,7 +21,12 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome Back</Text>
 
-      <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" />
+      <TextInput
+        style={styles.input} 
+        placeholder="Email" 
+        placeholderTextColor="#888" 
+      />
+      
       <TextInput
         style={styles.input}
         placeholder="Password"
