@@ -1,20 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router'; // 💥 important
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
-  const router = useRouter(); // 🚀 hook from expo-router
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // You can add validation here later if needed
-    router.replace('/(tabs)/'); // ✅ navigate to tabs
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('http://192.168.0.102:3000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        Alert.alert('Login Failed', data.error || 'Something went wrong');
+        return;
+      }
+
+      // ✅ Store session info
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+
+      // ✅ Redirect to home
+      router.replace('/(tabs)');
+    } catch (err: any) {
+      Alert.alert('Network Error', err.message);
+    }
   };
 
   return (
@@ -22,16 +48,20 @@ export default function LoginScreen() {
       <Text style={styles.title}>Welcome Back</Text>
 
       <TextInput
-        style={styles.input} 
-        placeholder="Email" 
-        placeholderTextColor="#888" 
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#888"
+        value={email}
+        onChangeText={setEmail}
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Password"
         placeholderTextColor="#888"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -40,6 +70,9 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
+
+// Keep your styles as-is...
+
 
 const styles = StyleSheet.create({
   container: {

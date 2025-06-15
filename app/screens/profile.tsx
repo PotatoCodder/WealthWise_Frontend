@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     position: 'relative',
-  },
+  },                     
 
   secondaryView: {
     flex: 1,

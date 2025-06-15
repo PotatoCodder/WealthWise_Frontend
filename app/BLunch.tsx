@@ -24,7 +24,7 @@ export default function Lunch() {
 
       <TouchableOpacity
         style={styles.loginButton}
-        onPress={() => router.push('/Login')}
+        onPress={() => router.push('/login')}
       >
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>

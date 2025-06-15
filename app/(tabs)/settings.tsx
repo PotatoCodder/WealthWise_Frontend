@@ -1,12 +1,30 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 export default function Settings() {
   const router = useRouter();
 
-  const handleNavigation = (route) => {
+  const handleNavigation = (route: string) => {
     router.push(route);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('isLoggedIn');
+      await AsyncStorage.removeItem('user');
+      router.replace('/ALunch');
+    } catch (err) {
+      console.error('Logout error:', err);
+      Alert.alert('Error', 'Failed to logout.');
+    }
   };
 
   const settings = [
@@ -14,7 +32,7 @@ export default function Settings() {
     { label: 'Security', route: '/screens/security' },
     { label: 'Privacy Policy', route: '/screens/privacy' },
     { label: 'Terms of Use', route: '/screens/term' },
-    { label: 'Logout', route: '/logout' },
+    { label: 'Logout', route: 'logout' }, // just a key, not a route
   ];
 
   return (
@@ -24,10 +42,30 @@ export default function Settings() {
         <TouchableOpacity
           key={index}
           style={styles.link}
-          onPress={() => handleNavigation(item.route)}
+          onPress={() => {
+            if (item.label === 'Logout') {
+              handleLogout(); // Call logout instead of navigation
+            } else {
+              handleNavigation(item.route);
+            }
+          }}
         >
-          <Text style={styles.linkText}>{item.label}</Text>
-          <Text style={styles.arrow}>&gt;</Text>
+          <Text
+            style={[
+              styles.linkText,
+              item.label === 'Logout' ? { color: 'red' } : null,
+            ]}
+          >
+            {item.label}
+          </Text>
+          <Text
+            style={[
+              styles.arrow,
+              item.label === 'Logout' ? { color: 'red' } : null,
+            ]}
+          >
+            &gt;
+          </Text>
         </TouchableOpacity>
       ))}
     </View>

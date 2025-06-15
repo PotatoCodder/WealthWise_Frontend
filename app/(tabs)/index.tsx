@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 
+
 export default function HomeScreen() {
   return (
     <View style={styles.mainView}>
