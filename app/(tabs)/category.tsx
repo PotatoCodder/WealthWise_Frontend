@@ -7,18 +7,20 @@ import {
   ScrollView,
   Modal,
   TextInput,
-  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CategoryTab() {
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [formType, setFormType] = useState('Expense');
+
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState('');
+  const [fromAccount, setFromAccount] = useState('Default Account');
+  const [toAccount, setToAccount] = useState('');
 
   const buttons = [
     { label: 'Food', icon: 'food' },
@@ -37,40 +39,26 @@ export default function CategoryTab() {
     setModalVisible(true);
   };
 
-  const handleAddExpense = async () => {
-    try {
-      const userString = await AsyncStorage.getItem('user');
-      if (!userString) throw new Error('User not found');
-
-      const user = JSON.parse(userString);
-      const userId = user.email; // changed from user.id to user.email
-
-      const res = await fetch('http://192.168.0.102:3000/api/add-expense', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          category: selectedCategory,
-          amount,
-          date,
-          title,
-          notes,
-          userId,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to add expense');
-
-      Alert.alert('Success', 'Expense added successfully');
-      setModalVisible(false);
-      setAmount('');
-      setDate('');
-      setTitle('');
-      setNotes('');
-    } catch (err) {
-      Alert.alert('Error', err.message);
+  const renderForm = () => {
+    if (formType === 'Expense' || formType === 'Income') {
+      return (
+        <>
+          <TextInput placeholder="Title" style={styles.input} value={title} onChangeText={setTitle} />
+          <TextInput placeholder="Notes" style={styles.input} value={notes} onChangeText={setNotes} />
+          <TextInput placeholder="Amount" style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" />
+          <TextInput placeholder="Date (YYYY-MM-DD)" style={styles.input} value={date} onChangeText={setDate} />
+        </>
+      );
+    } else if (formType === 'Transfer') {
+      return (
+        <>
+          <TextInput placeholder="From Account" style={styles.input} value={fromAccount} onChangeText={setFromAccount} />
+          <TextInput placeholder="To Account" style={styles.input} value={toAccount} onChangeText={setToAccount} />
+          <TextInput placeholder="Amount" style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" />
+          <TextInput placeholder="Note" style={styles.input} value={notes} onChangeText={setNotes} />
+          <TextInput placeholder="Date (YYYY-MM-DD)" style={styles.input} value={date} onChangeText={setDate} />
+        </>
+      );
     }
   };
 
@@ -84,9 +72,7 @@ export default function CategoryTab() {
           <View style={styles.grid}>
             {buttons.map((btn, index) => (
               <View key={index} style={styles.gridItem}>
-                <TouchableOpacity
-                  style={styles.gridButton}
-                  onPress={() => handleCategoryPress(btn.label)}>
+                <TouchableOpacity style={styles.gridButton} onPress={() => handleCategoryPress(btn.label)}>
                   <Icon name={btn.icon} size={32} color="#4E008E" />
                 </TouchableOpacity>
                 <Text style={styles.buttonLabel}>{btn.label}</Text>
@@ -96,46 +82,30 @@ export default function CategoryTab() {
         </View>
       </ScrollView>
 
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide">
+      <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add {selectedCategory} Expense</Text>
+            <Text style={styles.modalTitle}>Add {formType} - {selectedCategory}</Text>
 
-            <TextInput
-              placeholder="Title"
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <TextInput
-              placeholder="Notes"
-              style={styles.input}
-              value={notes}
-              onChangeText={setNotes}
-            />
-            <TextInput
-              placeholder="Amount"
-              style={styles.input}
-              keyboardType="numeric"
-              value={amount}
-              onChangeText={setAmount}
-            />
-            <TextInput
-              placeholder="Date (YYYY-MM-DD)"
-              style={styles.input}
-              value={date}
-              onChangeText={setDate}
-            />
+            <View style={styles.switchButtons}>
+              {['Expense', 'Income', 'Transfer'].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.switchButton, formType === type && styles.activeSwitch]}
+                  onPress={() => setFormType(type)}>
+                  <Text style={formType === type ? styles.activeText : styles.inactiveText}>{type}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-            <TouchableOpacity style={styles.modalButton} onPress={handleAddExpense}>
-              <Text style={styles.modalButtonText}>Add Expense</Text>
+            {renderForm()}
+
+            <TouchableOpacity style={styles.modalButton} onPress={() => alert(`${formType} Saved`)}>
+              <Text style={styles.modalButtonText}>Save {formType}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#aaa', marginTop: 10 }]}
+              style={[styles.modalButton, { backgroundColor: '#aaa', marginTop: 10 }]} 
               onPress={() => setModalVisible(false)}>
               <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -238,5 +208,26 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  switchButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  switchButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  activeSwitch: {
+    backgroundColor: '#4E008E',
+  },
+  activeText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  inactiveText: {
+    color: '#4E008E',
+    fontWeight: '600',
   },
 });

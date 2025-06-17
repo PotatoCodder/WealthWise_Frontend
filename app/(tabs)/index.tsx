@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,9 +7,28 @@ import {
   ScrollView,
 } from 'react-native';
 import { Image } from 'expo-image';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
+  const [username, setUsername] = useState('User'); // fallback default
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          const name = user.name || user.email?.split('@')[0] || 'User';
+          setUsername(name);
+        }
+      } catch (error) {
+        console.error('Error fetching user from AsyncStorage:', error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return (
     <View style={styles.mainView}>
       {/* 🔷 Header */}
@@ -18,7 +37,7 @@ export default function HomeScreen() {
           source={require('../../assets/images/user.png')}
           style={styles.profileImage}
         />
-        <Text style={styles.greetingText}>Hello, user</Text>
+        <Text style={styles.greetingText}>Hello, {username}</Text>
         <Image
           source={require('../../assets/images/Icon-Notification.png')}
           style={styles.notificationIcon}
@@ -61,6 +80,8 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+// (Keep your existing styles here)
 
 const styles = StyleSheet.create({
   mainView: {
