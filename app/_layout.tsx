@@ -39,6 +39,24 @@ export default function RootLayout() {
             headerTintColor: '#fff', // Makes the back arrow white (or any color you want)
           }}
         />
+        <Stack.Screen
+          name='CategoryDetails'
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: 'Details',
+            headerTintColor: '#fff'
+          }}
+        />
+        <Stack.Screen
+          name='CategoryFetch'
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: 'Category',
+            headerTintColor: '#fff'
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
 

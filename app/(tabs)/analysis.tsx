@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  
 } from 'react-native';
 
-export default function SecurityScreen() {
+export default function AnalysisScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
@@ -16,6 +17,9 @@ export default function SecurityScreen() {
   return (
     <View style={styles.mainView}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.header}>
+          
+        </View>
         <View style={styles.secondaryView}>
           <Text style={styles.heading}>Security Settings</Text>
 
@@ -75,6 +79,13 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     justifyContent: 'flex-start',
+  },
+    header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 32,
+    paddingTop: 60,
   },
   secondaryView: {
     flex: 1,

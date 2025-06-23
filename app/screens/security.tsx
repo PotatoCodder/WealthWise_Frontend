@@ -6,12 +6,48 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SecurityScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
+
+  const handleUpdatePassword = async () => {
+    if (!email || !password || !repeatPassword) {
+      Alert.alert('Missing Fields', 'Please fill in all fields.');
+      return;
+    }
+
+    if (password !== repeatPassword) {
+      Alert.alert('Password Mismatch', 'Passwords do not match.');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://192.168.0.105:3000/api/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        Alert.alert('Error', data.error || 'Something went wrong');
+        return;
+      }
+
+      Alert.alert('Success', 'Password updated successfully!');
+      setEmail('');
+      setPassword('');
+      setRepeatPassword('');
+    } catch (err) {
+      Alert.alert('Network Error', err.message);
+    }
+  };
 
   return (
     <View style={styles.mainView}>
@@ -19,7 +55,6 @@ export default function SecurityScreen() {
         <View style={styles.secondaryView}>
           <Text style={styles.heading}>Security Settings</Text>
 
-          {/* Email */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email <Text style={styles.arrow}>&gt;</Text></Text>
             <TextInput
@@ -32,7 +67,6 @@ export default function SecurityScreen() {
             />
           </View>
 
-          {/* Password */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password <Text style={styles.arrow}>&gt;</Text></Text>
             <TextInput
@@ -45,7 +79,6 @@ export default function SecurityScreen() {
             />
           </View>
 
-          {/* Repeat Password */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Repeat Password <Text style={styles.arrow}>&gt;</Text></Text>
             <TextInput
@@ -58,8 +91,7 @@ export default function SecurityScreen() {
             />
           </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={handleUpdatePassword}>
             <Text style={styles.buttonText}>Update Security Info</Text>
           </TouchableOpacity>
         </View>
@@ -67,6 +99,7 @@ export default function SecurityScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   mainView: {
     flex: 1,
