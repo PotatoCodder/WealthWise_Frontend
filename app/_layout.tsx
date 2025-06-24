@@ -57,6 +57,15 @@ export default function RootLayout() {
             headerTintColor: '#fff'
           }}
         />
+        <Stack.Screen
+          name='SearchScreen'
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: 'Search',
+            headerTintColor: '#fff'
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
 

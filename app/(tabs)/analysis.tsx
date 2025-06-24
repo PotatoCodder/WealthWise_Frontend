@@ -41,7 +41,7 @@ export default function AnalysisScreen() {
           {/* 🔍 Search Icon */}
           <TouchableOpacity
             style={styles.searchIcon}
-            onPress={() => router.push('/screens/search')}
+            onPress={() => router.push('/search/searchScreen')}
           >
             <Ionicons name="search" size={22} color="#4E008E" />
           </TouchableOpacity>
