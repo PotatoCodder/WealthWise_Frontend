@@ -1,76 +1,78 @@
-import { useState } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
   Text,
+  Dimensions,
   TouchableOpacity,
   ScrollView,
-  TextInput,
-  
 } from 'react-native';
+import { BarChart } from 'react-native-chart-kit';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+
+const screenWidth = Dimensions.get('window').width;
 
 export default function AnalysisScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
+  const router = useRouter();
+
+  // Placeholder data — replace with Firebase fetch later
+  const barData = {
+    labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
+    datasets: [
+      {
+        data: [2500, 4800, 9000, 7500],
+      },
+    ],
+  };
 
   return (
     <View style={styles.mainView}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        {/* 🔷 Header */}
         <View style={styles.header}>
-          
+          <Text style={styles.pageTitle}>Monthly Expense Analysis</Text>
         </View>
-        <View style={styles.secondaryView}>
-          <Text style={styles.heading}>Security Settings</Text>
 
-          {/* Email */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email <Text style={styles.arrow}>&gt;</Text></Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#aaa"
-              keyboardType="email-address"
-            />
-          </View>
+        {/* 🔶 Chart Section */}
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>April Expenses</Text>
 
-          {/* Password */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password <Text style={styles.arrow}>&gt;</Text></Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              style={styles.input}
-              placeholder="Enter new password"
-              placeholderTextColor="#aaa"
-              secureTextEntry
-            />
-          </View>
-
-          {/* Repeat Password */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Repeat Password <Text style={styles.arrow}>&gt;</Text></Text>
-            <TextInput
-              value={repeatPassword}
-              onChangeText={setRepeatPassword}
-              style={styles.input}
-              placeholder="Confirm new password"
-              placeholderTextColor="#aaa"
-              secureTextEntry
-            />
-          </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Update Security Info</Text>
+          {/* 🔍 Search Icon */}
+          <TouchableOpacity
+            style={styles.searchIcon}
+            onPress={() => router.push('/screens/search')}
+          >
+            <Ionicons name="search" size={22} color="#4E008E" />
           </TouchableOpacity>
+
+          <BarChart
+            data={barData}
+            width={screenWidth - 40}
+            height={220}
+            yAxisLabel="₱"
+            chartConfig={{
+              backgroundColor: '#ffffff',
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(78, 0, 142, ${opacity})`,
+              labelColor: () => '#888',
+              style: { borderRadius: 16 },
+              propsForBackgroundLines: {
+                strokeDasharray: '',
+                stroke: '#eee',
+              },
+            }}
+            verticalLabelRotation={0}
+            style={styles.chart}
+          />
         </View>
       </ScrollView>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   mainView: {
     flex: 1,
@@ -80,63 +82,42 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-start',
   },
-    header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 32,
+  header: {
     paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 24,
   },
-  secondaryView: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 65,
-    borderTopRightRadius: 65,
-    padding: 24,
-    marginTop: 120,
-  },
-  heading: {
+  pageTitle: {
+    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4E008E',
-    marginBottom: 32,
-    textAlign: 'center',
   },
-  inputGroup: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#4E008E',
-    marginBottom: 6,
-    flexDirection: 'row',
-  },
-  arrow: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4E008E',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#4E008E',
-    borderRadius: 25,
-    paddingVertical: 12,
+  chartContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 65,
+    borderTopRightRadius: 65,
+    paddingTop: 24,
+    paddingBottom: 40,
     paddingHorizontal: 20,
-    fontSize: 16,
-    color: '#000',
+    marginTop: -30,
+    minHeight: 400,
   },
-  button: {
-    backgroundColor: '#4E008E',
-    paddingVertical: 14,
-    borderRadius: 30,
-    marginTop: 20,
-    alignItems: 'center',
-    elevation: 3,
+  chartTitle: {
+    color: '#4E008E',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  chart: {
+    borderRadius: 16,
+  },
+  searchIcon: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: '#EEE6FF',
+    padding: 6,
+    borderRadius: 20,
+    zIndex: 10,
   },
 });

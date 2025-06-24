@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  FlatList,
   ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
@@ -108,14 +107,6 @@ export default function CategoryDetails() {
           </ScrollView>
         )}
       </View>
-
-      {/* Floating Add Button */}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => router.push('/screens/categoryDetails')}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -153,20 +144,22 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 65,
     borderTopRightRadius: 65,
     padding: 20,
-    marginTop: 40,
+    marginTop: 180,
   },
 
   // 🔘 3x3 Grid
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+    justifyContent: 'space-evenly',
+    paddingTop: 10,
   },
   gridButton: {
-    width: '30%',
+    flexBasis: '30%',
+    maxWidth: '30%',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
+    aspectRatio: 1,
   },
   iconCircle: {
     width: 60,
@@ -207,29 +200,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#4E008E',
-  },
-
-  // ➕ Floating Button
-  addButton: {
-    position: 'absolute',
-    bottom: 120,
-    right: 20,
-    backgroundColor: '#4E008E',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    zIndex: 10,
-  },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
   },
 });
