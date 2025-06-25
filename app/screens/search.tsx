@@ -1,3 +1,5 @@
+// 🔥 Updated SearchScreen.js with search + loading + API fetch
+
 import React, { useState } from 'react';
 import {
   View,
@@ -6,10 +8,13 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -18,10 +23,36 @@ export default function SearchScreen() {
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [reportType, setReportType] = useState('Income');
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
+
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      setResults([]);
+
+      const userData = await AsyncStorage.getItem('user');
+      const user = JSON.parse(userData || '{}');
+
+      const response = await fetch(
+        `http://192.168.0.105:3000/api/search-report?userId=${user.email}&category=${category}&date=${date}&type=${reportType}`
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setResults(data.entries || []);
+      } else {
+        console.error('❌ API Error:', data.error);
+      }
+    } catch (err) {
+      console.error('🔥 Search Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.mainView}>
-      {/* 🔷 Header */}
       <View style={styles.header}>
         <Image
           source={require('../../assets/images/user.png')}
@@ -33,9 +64,7 @@ export default function SearchScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 🔘 Secondary View */}
-      <View style={styles.secondaryView}>
-        {/* 🔽 Category Dropdown Placeholder */}
+      <ScrollView style={styles.secondaryView}>
         <Text style={styles.label}>Category</Text>
         <TextInput
           placeholder="Food, Entertainment, Rent, etc."
@@ -45,7 +74,6 @@ export default function SearchScreen() {
           onChangeText={setCategory}
         />
 
-        {/* 📅 Date Input */}
         <Text style={styles.label}>Date</Text>
         <TextInput
           placeholder="e.g. 2024-04"
@@ -55,55 +83,36 @@ export default function SearchScreen() {
           onChangeText={setDate}
         />
 
-        {/* 📊 Report Type (Radio-style) */}
         <Text style={styles.label}>Report</Text>
         <View style={styles.radioGroup}>
-          <TouchableOpacity
-            style={[
-              styles.radioButton,
-              reportType === 'Income' && styles.radioActive,
-            ]}
-            onPress={() => setReportType('Income')}
-          >
-            <Text
-              style={[
-                styles.radioText,
-                reportType === 'Income' && styles.radioTextActive,
-              ]}
+          {['Income', 'Expense'].map((type) => (
+            <TouchableOpacity
+              key={type}
+              style={[styles.radioButton, reportType === type && styles.radioActive]}
+              onPress={() => setReportType(type)}
             >
-              Income
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.radioButton,
-              reportType === 'Expense' && styles.radioActive,
-            ]}
-            onPress={() => setReportType('Expense')}
-          >
-            <Text
-              style={[
-                styles.radioText,
-                reportType === 'Expense' && styles.radioTextActive,
-              ]}
-            >
-              Expense
-            </Text>
-          </TouchableOpacity>
+              <Text style={[styles.radioText, reportType === type && styles.radioTextActive]}>
+                {type}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* 🔍 Search Button */}
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => {
-            // 🚀 Route to analysis or pass params
-            router.push('/search/searchScreen');
-          }}
-        >
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
           <Text style={styles.searchButtonText}>Search</Text>
         </TouchableOpacity>
-      </View>
+
+        {loading && <ActivityIndicator style={{ marginTop: 20 }} size="large" color="#4E008E" />}
+
+        {/* 📃 Results Section */}
+        {results.map((item, idx) => (
+          <View key={idx} style={styles.resultCard}>
+            <Text style={styles.resultTitle}>{item.title}</Text>
+            <Text style={styles.resultDetails}>₱{item.amount} • {item.date}</Text>
+            <Text style={styles.resultNotes}>{item.notes || 'No notes.'}</Text>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -179,5 +188,25 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  resultCard: {
+    marginTop: 20,
+    backgroundColor: '#f2f2f2',
+    padding: 16,
+    borderRadius: 12,
+  },
+  resultTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#4E008E',
+  },
+  resultDetails: {
+    marginTop: 4,
+    color: '#555',
+  },
+  resultNotes: {
+    fontStyle: 'italic',
+    marginTop: 4,
+    color: '#999',
   },
 });
