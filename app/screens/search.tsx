@@ -126,8 +126,16 @@ const styles = StyleSheet.create({
     padding: 32,
     paddingTop: 60,
   },
-  profileImage: { width: 45, height: 45, borderRadius: 20 },
-  greetingText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  profileImage: { 
+    width: 45,
+    height: 45,
+    borderRadius: 20 
+  },
+  greetingText: { 
+    color: '#fff', 
+    fontSize: 20, 
+    fontWeight: 'bold' 
+  },
   secondaryView: {
     flex: 1,
     backgroundColor: '#fff',

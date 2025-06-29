@@ -39,12 +39,22 @@ export default function AnalysisScreen() {
           <Text style={styles.chartTitle}>April Expenses</Text>
 
           {/* 🔍 Search Icon */}
-          <TouchableOpacity
-            style={styles.searchIcon}
-            onPress={() => router.push('/screens/search')}
-          >
-            <Ionicons name="search" size={22} color="#4E008E" />
-          </TouchableOpacity>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => router.push('/screens/search')}
+            >
+              <Ionicons name="search" size={22} color="#4E008E" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => router.push('/screens/calendar')}
+            >
+              <Ionicons name="calendar" size={22} color="#4E008E" />
+            </TouchableOpacity>
+          </View>
+
 
           <BarChart
             data={barData}
@@ -67,6 +77,12 @@ export default function AnalysisScreen() {
             verticalLabelRotation={0}
             style={styles.chart}
           />
+                <TouchableOpacity
+        onPress={() => router.push('/screens/detailedAnalysis.tsx')}
+        style={{ marginTop: 24, padding: 12, backgroundColor: '#8C52FF', borderRadius: 10, alignItems: 'center' }}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Go to Detailed Analysis</Text>
+      </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -120,4 +136,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     zIndex: 10,
   },
+  iconContainer: {
+  position: 'absolute',
+  top: 20,
+  right: 20,
+  flexDirection: 'row',
+  gap: 10,
+  zIndex: 10,
+},
+
+iconButton: {
+  backgroundColor: '#EEE6FF',
+  padding: 6,
+  borderRadius: 20,
+},
+
 });

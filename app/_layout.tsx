@@ -58,6 +58,15 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name='CalendarScreen'
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: 'Calendar',
+            headerTintColor: '#fff'
+          }}
+        />
+        <Stack.Screen
           name='SearchScreen'
           options={{
             headerShown: true,
