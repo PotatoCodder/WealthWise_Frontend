@@ -70,7 +70,7 @@ export default function CategoryFetch() {
         if (!id) throw new Error('User not found in AsyncStorage');
 
         const res = await fetch(
-          `http://192.168.0.105:3000/api/get-expenses-by-category?userId=${id}&category=${category}`
+          `http://192.168.0.101:3000/api/get-expenses-by-category?userId=${id}&category=${category}`
         );
         const data = await res.json();
 
@@ -119,7 +119,7 @@ export default function CategoryFetch() {
       payload = { ...base, fromAccount, toAccount };
     }
 
-    await fetch(`http://192.168.0.105:3000/api/${endpoint}`, {
+    await fetch(`http://192.168.0.101:3000/api/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

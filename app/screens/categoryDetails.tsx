@@ -87,7 +87,7 @@ export default function CategoryDetails() {
 
   const fetchAllExpenses = async (userId) => {
     try {
-      const res = await fetch(`http://192.168.0.105:3000/api/get-expenses?userId=${userId}`);
+      const res = await fetch(`http://192.168.0.101:3000/api/get-expenses?userId=${userId}`);
       const data = await res.json();
       if (res.ok) {
         setExpenses(data.expenses || []);
@@ -119,7 +119,7 @@ export default function CategoryDetails() {
         fromAccount,
         toAccount,
       };
-      await fetch('http://192.168.0.105:3000/api/transfer', {
+      await fetch('http://192.168.0.101:3000/api/transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(transferData),
@@ -136,7 +136,7 @@ export default function CategoryDetails() {
         category: selectedCategory,
         account: selectedAccount,
       };
-      await fetch('http://192.168.0.105:3000/api/add-income', {
+      await fetch('http://192.168.0.101:3000/api/add-income', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(incomeData),
@@ -153,7 +153,7 @@ export default function CategoryDetails() {
         category: selectedCategory,
         account: selectedAccount,
       };
-      await fetch('http://192.168.0.105:3000/api/add-expense', {
+      await fetch('http://192.168.0.101:3000/api/add-expense', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(expenseData),

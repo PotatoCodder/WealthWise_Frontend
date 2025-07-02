@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -18,10 +19,10 @@ const chartConfig = {
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
   decimalPlaces: 2,
-  color: (opacity = 1) => rgba(76, 0, 153, ${opacity}),
-  labelColor: (opacity = 1) => rgba(0, 0, 0, ${opacity}),
+  color: (opacity = 1) => `rgba(76, 0, 153, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   propsForDots: {
-    r: '4',
+    r: '5',
     strokeWidth: '2',
     stroke: '#4E008E',
   },
@@ -37,9 +38,11 @@ export default function ForecastingScreen() {
   const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCurrentMonthData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCurrentMonthData();
+    }, [])
+  );
 
   const fetchCurrentMonthData = async () => {
     try {
@@ -53,25 +56,25 @@ export default function ForecastingScreen() {
       const thisYear = now.getFullYear();
 
       const [incomeRes, expenseRes] = await Promise.all([
-        fetch(http://192.168.0.105:3000/api/get-incomes?userId=${userId}),
-        fetch(http://192.168.0.105:3000/api/get-expenses-by-category?userId=${userId}&category=all),
+        fetch(`http://192.168.0.101:3000/api/get-incomes?userId=${userId}`),
+        fetch(`http://192.168.0.101:3000/api/get-expenses?userId=${userId}`),
       ]);
 
       const incomeJson = await incomeRes.json();
       const expenseJson = await expenseRes.json();
 
       const thisMonthIncome = incomeJson.incomes?.filter((item) => {
-        const d = new Date(item.date);
-        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        const date = new Date(item.date + 'T00:00:00');
+        return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
       }) || [];
 
       const thisMonthExpense = expenseJson.expenses?.filter((item) => {
-        const d = new Date(item.date);
-        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        const date = new Date(item.date + 'T00:00:00');
+        return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
       }) || [];
 
-      const totalIncome = thisMonthIncome.reduce((sum, item) => sum + parseFloat(item.amount), 0);
-      const totalExpense = thisMonthExpense.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+      const totalIncome = thisMonthIncome.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+      const totalExpense = thisMonthExpense.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
 
       setIncome(totalIncome);
       setExpense(totalExpense);
@@ -89,17 +92,17 @@ export default function ForecastingScreen() {
     labels: ['This Month', 'Next Month'],
     datasets: [
       {
-        data: [income, predictedIncome],
-        color: (opacity = 1) => rgba(140, 82, 255, ${opacity}),
-        strokeWidth: 2,
+        data: [parseFloat(income.toFixed(2)), predictedIncome],
+        color: (opacity = 1) => `rgba(140, 82, 255, ${opacity})`,
+        strokeWidth: 3,
       },
       {
-        data: [expense, predictedExpense],
-        color: (opacity = 1) => rgba(255, 111, 97, ${opacity}),
-        strokeWidth: 2,
+        data: [parseFloat(expense.toFixed(2)), predictedExpense],
+        color: (opacity = 1) => `rgba(255, 111, 97, ${opacity})`,
+        strokeWidth: 3,
       },
     ],
-    legend: ['Income', 'Expense'],
+    legend: ['📥 Income', '📤 Expense'],
   };
 
   return (
@@ -115,12 +118,22 @@ export default function ForecastingScreen() {
               <LineChart
                 data={chartData}
                 width={screenWidth - 60}
-                height={250}
+                height={260}
                 chartConfig={chartConfig}
                 bezier
                 fromZero
                 style={styles.chart}
               />
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: '#8C52FF' }]} />
+                  <Text style={styles.legendText}>Income</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: '#FF6F61' }]} />
+                  <Text style={styles.legendText}>Expense</Text>
+                </View>
+              </View>
             </View>
 
             <View style={styles.summaryBox}>
@@ -168,6 +181,25 @@ const styles = StyleSheet.create({
   },
   chart: {
     borderRadius: 16,
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 5,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#4E008E',
   },
   summaryBox: {
     backgroundColor: '#EFE7FF',

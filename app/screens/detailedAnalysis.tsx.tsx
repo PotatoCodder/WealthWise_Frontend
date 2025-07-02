@@ -55,8 +55,8 @@ export default function CalendarChart() {
       const userId = user.email;
 
       const [incomeRes, expenseRes] = await Promise.all([
-        fetch(`http://192.168.0.105:3000/api/get-incomes?userId=${userId}`),
-        fetch(`http://192.168.0.105:3000/api/get-expenses?userId=${userId}`),
+        fetch(`http://192.168.0.101:3000/api/get-incomes?userId=${userId}`),
+        fetch(`http://192.168.0.101:3000/api/get-expenses?userId=${userId}`),
       ]);
 
       const [incomeJson, expenseJson] = await Promise.all([
