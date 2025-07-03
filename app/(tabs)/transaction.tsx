@@ -22,13 +22,12 @@ const chartConfig = {
   color: (opacity = 1) => `rgba(76, 0, 153, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   propsForDots: {
-    r: '5',
-    strokeWidth: '2',
-    stroke: '#4E008E',
+    r: '6',
+    strokeWidth: '3',
+    stroke: '#8C52FF',
   },
   propsForBackgroundLines: {
-    stroke: '#e3e3e3',
-    strokeDasharray: '0',
+    stroke: '#E0E0E0',
   },
 };
 
@@ -93,12 +92,12 @@ export default function ForecastingScreen() {
     datasets: [
       {
         data: [parseFloat(income.toFixed(2)), predictedIncome],
-        color: (opacity = 1) => `rgba(140, 82, 255, ${opacity})`,
+        color: () => '#8C52FF',
         strokeWidth: 3,
       },
       {
         data: [parseFloat(expense.toFixed(2)), predictedExpense],
-        color: (opacity = 1) => `rgba(255, 111, 97, ${opacity})`,
+        color: () => '#FF6F61',
         strokeWidth: 3,
       },
     ],
@@ -113,11 +112,11 @@ export default function ForecastingScreen() {
         {loading ? (
           <ActivityIndicator size="large" color="#4E008E" />
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.chartWrapper}>
               <LineChart
                 data={chartData}
-                width={screenWidth - 60}
+                width={screenWidth * 0.9 - 40}
                 height={260}
                 chartConfig={chartConfig}
                 bezier
@@ -136,12 +135,32 @@ export default function ForecastingScreen() {
               </View>
             </View>
 
-            <View style={styles.summaryBox}>
-              <Text style={styles.summaryTitle}>📌 Summary</Text>
-              <Text style={styles.incomeText}>This Month's Income: ₱{income.toFixed(2)}</Text>
-              <Text style={styles.expenseText}>This Month's Expense: ₱{expense.toFixed(2)}</Text>
-              <Text style={styles.incomeText}>Predicted Income: ₱{predictedIncome}</Text>
-              <Text style={styles.expenseText}>Predicted Expense: ₱{predictedExpense}</Text>
+            <View style={styles.predictionContainer}>
+              <Text style={styles.predictionLabel}>🔮 Predicted Summary:</Text>
+              <View style={styles.predictionRow}>
+                <View style={styles.predictionBox}>
+                  <Text style={styles.predictionIcon}>📥</Text>
+                  <Text style={styles.predictionValue}>₱{income.toFixed(2)}</Text>
+                  <Text style={styles.predictionSub}>This Month Income</Text>
+                </View>
+                <View style={styles.predictionBox}>
+                  <Text style={styles.predictionIcon}>📤</Text>
+                  <Text style={styles.predictionValue}>₱{expense.toFixed(2)}</Text>
+                  <Text style={styles.predictionSub}>This Month Expense</Text>
+                </View>
+              </View>
+              <View style={styles.predictionRow}>
+                <View style={styles.predictionBox}>
+                  <Text style={styles.predictionIcon}>🔮</Text>
+                  <Text style={styles.predictionValue}>₱{predictedIncome}</Text>
+                  <Text style={styles.predictionSub}>Predicted Income</Text>
+                </View>
+                <View style={styles.predictionBox}>
+                  <Text style={styles.predictionIcon}>🔮</Text>
+                  <Text style={styles.predictionValue}>₱{predictedExpense}</Text>
+                  <Text style={styles.predictionSub}>Predicted Expense</Text>
+                </View>
+              </View>
             </View>
           </ScrollView>
         )}
@@ -165,6 +184,11 @@ const styles = StyleSheet.create({
     marginTop: 40,
     alignItems: 'center',
   },
+  scrollViewContent: {
+    paddingBottom: 100,
+    width: '100%',
+    alignItems: 'center',
+  },
   header: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -178,14 +202,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 20,
     elevation: 3,
+    width: '90%',
+    alignItems: 'center',
   },
   chart: {
     borderRadius: 16,
+    alignSelf: 'center',
   },
   legendContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
+    width: '100%',
   },
   legendItem: {
     flexDirection: 'row',
@@ -201,26 +229,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4E008E',
   },
-  summaryBox: {
-    backgroundColor: '#EFE7FF',
-    borderRadius: 20,
-    padding: 15,
+  predictionContainer: {
+    width: '90%',
+    paddingHorizontal: 10,
     marginTop: 10,
   },
-  summaryTitle: {
+  predictionLabel: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
     color: '#4E008E',
-    marginBottom: 10,
+    marginBottom: 12,
+    alignSelf: 'flex-start',
   },
-  incomeText: {
-    color: '#8C52FF',
-    fontSize: 14,
+  predictionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 16,
+  },
+  predictionBox: {
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#EFE7FF',
+    borderRadius: 20,
+    width: '48%',
+  },
+  predictionIcon: {
+    fontSize: 28,
     marginBottom: 4,
   },
-  expenseText: {
-    color: '#FF6F61',
-    fontSize: 14,
+  predictionValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4E008E',
+  },
+  predictionSub: {
+    fontSize: 12,
+    color: '#4E008E',
+    marginTop: 4,
   },
   backButton: {
     position: 'absolute',
