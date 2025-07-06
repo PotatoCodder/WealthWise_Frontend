@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="transaction"
         options={{
-          title: 'Transaction',
+          title: 'Forecasting',
           tabBarIcon: ({ color, focused }) => (
             <Image
               source={require('../../assets/tabicons/Transactions.png')}
@@ -75,7 +75,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="category"
         options={{
-          title: 'Category',
+          title: 'Transaction',
           tabBarIcon: ({ color, focused }) => (
             <Image
               source={require('../../assets/tabicons/Category.png')}

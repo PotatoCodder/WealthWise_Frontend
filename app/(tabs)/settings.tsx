@@ -37,7 +37,7 @@ export default function Settings() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.title}>Settings</Text>  
       {settings.map((item, index) => (
         <TouchableOpacity
           key={index}

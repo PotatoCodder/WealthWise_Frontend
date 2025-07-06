@@ -174,14 +174,17 @@ export default function ForecastingScreen() {
 }
 
 const styles = StyleSheet.create({
-  mainView: { flex: 1, backgroundColor: '#4E008E' },
+  mainView: {
+    flex: 1, 
+    backgroundColor: '#4E008E' 
+  },
   secondaryView: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 65,
     borderTopRightRadius: 65,
     padding: 20,
-    marginTop: 40,
+    marginTop: 250,
     alignItems: 'center',
   },
   scrollViewContent: {

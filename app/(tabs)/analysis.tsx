@@ -49,7 +49,7 @@ export default function AnalysisScreen() {
 
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => router.push('/screens/calendar')}
+              onPress={() => router.push('/screens/Calendar')}
             >
               <Ionicons name="calendar" size={22} color="#4E008E" />
             </TouchableOpacity>
