@@ -87,7 +87,7 @@ export default function CategoryDetails() {
 
   const fetchAllExpenses = async (userId) => {
     try {
-      const res = await fetch(`http://192.168.0.101:3000/api/get-expenses?userId=${userId}`);
+      const res = await fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`);
       const data = await res.json();
       if (res.ok) {
         setExpenses(data.expenses || []);

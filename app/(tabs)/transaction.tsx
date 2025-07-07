@@ -55,8 +55,8 @@ export default function ForecastingScreen() {
       const thisYear = now.getFullYear();
 
       const [incomeRes, expenseRes] = await Promise.all([
-        fetch(`http://192.168.0.101:3000/api/get-incomes?userId=${userId}`),
-        fetch(`http://192.168.0.101:3000/api/get-expenses?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-incomes?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`),
       ]);
 
       const incomeJson = await incomeRes.json();

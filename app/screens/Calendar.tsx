@@ -4,47 +4,86 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { PieChart } from 'react-native-chart-kit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
-export default function CalendarScreen({ userId }) {
+export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [incomes, setIncomes] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+
+  const normalizeDate = (dateString) => {
+    try {
+      return new Date(dateString).toISOString().slice(0, 10);
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Load user ID from AsyncStorage
+  useEffect(() => {
+    const loadUserId = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user');
+        if (user) {
+          const parsedUser = JSON.parse(user);
+          setUserId(parsedUser.email);
+          console.log('👤 Loaded user ID:', parsedUser.email);
+        } else {
+          console.warn('⚠️ No user object found in AsyncStorage!');
+        }
+      } catch (err) {
+        console.error('❌ Failed to load user ID from AsyncStorage:', err);
+      }
+    };
+    loadUserId();
+  }, []);
+
+  // Fetch when date and user ID are ready
+  useEffect(() => {
+    if (selectedDate && userId) {
+      fetchData();
+    }
+  }, [selectedDate, userId]);
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
   };
 
-  useEffect(() => {
-    if (selectedDate) {
-      fetchData();
-    }
-  }, [selectedDate]);
-
   const fetchData = async () => {
+    console.log('📅 Selected Date:', selectedDate);
+    console.log('👤 userId:', userId);
+
     try {
       const [expensesRes, incomesRes] = await Promise.all([
-        fetch(`http://10.0.2.2:3000/api/get-expenses?userId=${userId}`),
-        fetch(`http://10.0.2.2:3000/api/get-incomes?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-incomes?userId=${userId}`),
       ]);
 
       const expensesJson = await expensesRes.json();
       const incomesJson = await incomesRes.json();
 
-      const filteredExpenses = expensesJson.expenses.filter(
-        (e) => new Date(e.date).toISOString().slice(0, 10) === selectedDate
-      );
+      console.log('📥 Expenses from server:', expensesJson.expenses);
+      console.log('📥 Incomes from server:', incomesJson.incomes);
 
-      const filteredIncomes = incomesJson.incomes.filter(
-        (i) => new Date(i.date).toISOString().slice(0, 10) === selectedDate
-      );
+      const filteredExpenses = expensesJson.expenses.filter((e) => {
+        const match = normalizeDate(e.date) === normalizeDate(selectedDate);
+        console.log(`🔍 Expense Match: ${normalizeDate(e.date)} === ${normalizeDate(selectedDate)} => ${match}`);
+        return match;
+      });
+
+      const filteredIncomes = incomesJson.incomes.filter((i) => {
+        const match = normalizeDate(i.date) === normalizeDate(selectedDate);
+        console.log(`🔍 Income Match: ${normalizeDate(i.date)} === ${normalizeDate(selectedDate)} => ${match}`);
+        return match;
+      });
 
       setExpenses(filteredExpenses);
       setIncomes(filteredIncomes);
@@ -87,16 +126,31 @@ export default function CalendarScreen({ userId }) {
         {selectedDate && (
           <View style={styles.resultContainer}>
             <Text style={styles.sectionTitle}>Selected Date: {selectedDate}</Text>
+            <Text style={{ fontSize: 12, color: '#999' }}>User ID: {userId}</Text>
 
-            <Text style={styles.sectionTitle}>Expenses</Text>
-            {expenses.map((exp, idx) => (
-              <Text key={idx}>• ₱{exp.amount} - {exp.title} ({exp.category})</Text>
-            ))}
+            {expenses.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>Expenses</Text>
+                {expenses.map((exp, idx) => (
+                  <Text key={idx}>• ₱{exp.amount} - {exp.title} ({exp.category})</Text>
+                ))}
+              </>
+            )}
 
-            <Text style={styles.sectionTitle}>Incomes</Text>
-            {incomes.map((inc, idx) => (
-              <Text key={idx}>• ₱{inc.amount} - {inc.title} ({inc.category})</Text>
-            ))}
+            {incomes.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>Incomes</Text>
+                {incomes.map((inc, idx) => (
+                  <Text key={idx}>• ₱{inc.amount} - {inc.title} ({inc.category})</Text>
+                ))}
+              </>
+            )}
+
+            {expenses.length === 0 && incomes.length === 0 && (
+              <Text style={{ color: '#777', marginTop: 10 }}>
+                No income or expenses on this date.
+              </Text>
+            )}
 
             {categoryData.length > 0 && (
               <>

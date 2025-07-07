@@ -42,7 +42,7 @@ export default function HomeScreen() {
       const userId = user?.email;
       if (!userId) throw new Error('No user in AsyncStorage');
 
-      const response = await fetch( `http://192.168.0.101:3000/api/get-expenses?userId=${userId} `);
+      const response = await fetch( `http://192.168.0.104:3000/api/get-expenses?userId=${userId} `);
       const data = await response.json();
 
       if (response.ok) {
