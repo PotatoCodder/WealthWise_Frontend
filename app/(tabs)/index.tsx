@@ -14,8 +14,11 @@ export default function HomeScreen() {
   const [username, setUsername] = useState('User');
   const [activeTab, setActiveTab] = useState('Balance');
   const [expenses, setExpenses] = useState([]);
+  const [balances, setBalances] = useState([]);
   const [loading, setLoading] = useState(false);
   const [groupedExpenses, setGroupedExpenses] = useState({});
+  const [totalCash, setTotalCash] = useState(0);
+  const [totalCard, setTotalCard] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,26 +26,49 @@ export default function HomeScreen() {
       if (userString) {
         const user = JSON.parse(userString);
         setUsername(user.name || user.email?.split('@')[0] || 'User');
+        if (activeTab === 'Balance') {
+          fetchBalanceData(user.email);
+        } else if (activeTab === 'Expense') {
+          fetchExpenses(user.email);
+        }
       }
     };
     fetchUser();
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'Expense') {
-      fetchExpenses();
-    }
   }, [activeTab]);
 
-  const fetchExpenses = async () => {
+  const fetchBalanceData = async (userId) => {
     try {
       setLoading(true);
-      const userData = await AsyncStorage.getItem('user');
-      const user = JSON.parse(userData || '{}');
-      const userId = user?.email;
-      if (!userId) throw new Error('No user in AsyncStorage');
+      const res = await fetch(`http://192.168.0.104:3000/api/get-balance?userId=${userId}`);
+      const data = await res.json();
 
-      const response = await fetch( `http://192.168.0.104:3000/api/get-expenses?userId=${userId} `);
+      if (res.ok) {
+        setBalances(data.balances || []);
+
+        const cashTotal = data.balances
+          .filter((item) => item.type.toLowerCase() === 'cash')
+          .reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+        const cardTotal = data.balances
+          .filter((item) => item.type.toLowerCase() === 'card')
+          .reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+        setTotalCash(cashTotal);
+        setTotalCard(cardTotal);
+      } else {
+        console.error('❌ Error fetching balance:', data.error);
+      }
+    } catch (err) {
+      console.error('🔥 Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchExpenses = async (userId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -71,8 +97,19 @@ export default function HomeScreen() {
   };
 
   const renderContent = () => {
-    if (activeTab === 'Balance' || activeTab === 'Total') {
-      return <Text style={styles.placeholderText}>🚧 {activeTab} is under construction</Text>;
+    if (activeTab === 'Balance') {
+      return loading ? (
+        <ActivityIndicator size="large" color="#4E008E" />
+      ) : (
+        <View>
+          <Text style={styles.balanceText}>💵 Cash Balance: ₱{totalCash.toFixed(2)}</Text>
+          <Text style={styles.balanceText}>💳 Card Balance: ₱{totalCard.toFixed(2)}</Text>
+        </View>
+      );
+    }
+
+    if (activeTab === 'Total') {
+      return <Text style={styles.placeholderText}>🚧 Total tab under construction</Text>;
     }
 
     if (loading) {
@@ -101,7 +138,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.mainView}>
-      {/* 🔷 Header */}
       <View style={styles.header}>
         <Image
           source={require('../../assets/images/user.png')}
@@ -114,7 +150,6 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* 🔷 Tabs */}
       <View style={styles.buttonRow}>
         {['Balance', 'Expense', 'Total'].map((label) => (
           <TouchableOpacity
@@ -134,7 +169,6 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* 🔷 Content Section */}
       <View style={styles.contentWrapper}>
         <View style={styles.secondaryView}>{renderContent()}</View>
         <TouchableOpacity style={styles.addButton}>
@@ -157,7 +191,6 @@ const styles = StyleSheet.create({
   profileImage: { width: 45, height: 45, borderRadius: 20 },
   greetingText: { color: '#fff', fontSize: 18, fontWeight: '600' },
   notificationIcon: { width: 34, height: 34 },
-
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -186,7 +219,6 @@ const styles = StyleSheet.create({
   },
   walletLabel: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   contentWrapper: { flex: 1, position: 'relative' },
-
   secondaryView: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -246,5 +278,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  balanceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4E008E',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
