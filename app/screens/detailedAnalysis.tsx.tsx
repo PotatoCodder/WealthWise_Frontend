@@ -166,6 +166,23 @@ export default function CalendarChart() {
   return (
     <View style={styles.mainView}>
       <View style={styles.secondaryView}>
+        <View style={styles.balanceSummary}>
+          <View style={styles.balanceColumn}>
+            <Text style={styles.balanceLabel}>Total Balance</Text>
+            <Text style={styles.balanceValue}>₱{(summary.totalIncome - summary.totalExpense).toFixed(2)}</Text>
+          </View>
+          <View style={styles.verticalDivider} />
+          <View style={styles.balanceColumn}>
+            <Text style={styles.balanceLabel}>Total Expense</Text>
+            <Text style={styles.balanceValue}>₱{summary.totalExpense.toFixed(2)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.balanceBreakdown}>
+          <Text style={styles.breakdownText}>💵 Cash: ₱{(summary.totalIncome * 0.5).toFixed(2)}</Text>
+          <Text style={styles.breakdownText}>💳 Card: ₱{(summary.totalIncome * 0.5).toFixed(2)}</Text>
+        </View>
+
         <View style={styles.buttonRow}>
           {TABS.map((tab) => (
             <TouchableOpacity
@@ -241,6 +258,49 @@ const SummaryRow = ({ icon, color, label, amount }) => (
 
 const styles = StyleSheet.create({
   mainView: { flex: 1, backgroundColor: '#4E008E' },
+  balanceSummary: {
+  flexDirection: 'row',
+  justifyContent: 'space-evenly',
+  alignItems: 'center',
+  backgroundColor: '#4E008E',
+  paddingHorizontal: 20,
+  paddingTop: 20,
+  paddingBottom: 10,
+  borderTopLeftRadius: 65,
+  borderTopRightRadius: 65,
+},
+balanceColumn: {
+  alignItems: 'center',
+  width: '45%',
+},
+verticalDivider: {
+  width: 1,
+  height: '70%',
+  backgroundColor: '#C3A1FF',
+},
+balanceLabel: {
+  color: '#fff',
+  fontSize: 14,
+  fontWeight: 'bold',
+},
+balanceValue: {
+  color: '#fff',
+  fontSize: 20,
+  fontWeight: 'bold',
+  marginTop: 5,
+},
+balanceBreakdown: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingHorizontal: 30,
+  paddingBottom: 20,
+  backgroundColor: '#4E008E',
+},
+breakdownText: {
+  color: '#D3D3D3',
+  fontSize: 14,
+},
+
   secondaryView: {
     flex: 1,
     backgroundColor: '#FFFFFF',

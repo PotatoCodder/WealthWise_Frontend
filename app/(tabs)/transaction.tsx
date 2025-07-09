@@ -35,6 +35,8 @@ export default function ForecastingScreen() {
   const router = useRouter();
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
+  const [balanceCash, setBalanceCash] = useState(0);
+  const [balanceCard, setBalanceCard] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -54,13 +56,15 @@ export default function ForecastingScreen() {
       const thisMonth = now.getMonth();
       const thisYear = now.getFullYear();
 
-      const [incomeRes, expenseRes] = await Promise.all([
+      const [incomeRes, expenseRes, balanceRes] = await Promise.all([
         fetch(`http://192.168.0.104:3000/api/get-incomes?userId=${userId}`),
         fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-balance?userId=${userId}`),
       ]);
 
       const incomeJson = await incomeRes.json();
       const expenseJson = await expenseRes.json();
+      const balanceJson = await balanceRes.json();
 
       const thisMonthIncome = incomeJson.incomes?.filter((item) => {
         const date = new Date(item.date + 'T00:00:00');
@@ -77,6 +81,18 @@ export default function ForecastingScreen() {
 
       setIncome(totalIncome);
       setExpense(totalExpense);
+
+      const balances = balanceJson.balances || [];
+      const cashTotal = balances
+        .filter((b) => b.type === 'Cash')
+        .reduce((sum, b) => sum + parseFloat(b.amount || 0), 0);
+
+      const cardTotal = balances
+        .filter((b) => b.type === 'Card')
+        .reduce((sum, b) => sum + parseFloat(b.amount || 0), 0);
+
+      setBalanceCash(cashTotal);
+      setBalanceCard(cardTotal);
     } catch (error) {
       console.error('🔥 Forecast fetch error:', error);
     } finally {
@@ -106,6 +122,26 @@ export default function ForecastingScreen() {
 
   return (
     <View style={styles.mainView}>
+      {/* Summary with divider */}
+      <View style={styles.balanceSummary}>
+        <View style={styles.balanceColumn}>
+          <Text style={styles.balanceLabel}>Total Balance</Text>
+          <Text style={styles.balanceValue}>₱{(balanceCash + balanceCard).toFixed(2)}</Text>
+        </View>
+        <View style={styles.verticalDivider} />
+        <View style={styles.balanceColumn}>
+          <Text style={styles.balanceLabel}>Total Expense</Text>
+          <Text style={styles.balanceValue}>₱{expense.toFixed(2)}</Text>
+        </View>
+      </View>
+
+      {/* Cash & Card Breakdown */}
+      <View style={styles.balanceBreakdown}>
+        <Text style={styles.breakdownText}>💵 Cash: ₱{balanceCash.toFixed(2)}</Text>
+        <Text style={styles.breakdownText}>💳 Card: ₱{balanceCard.toFixed(2)}</Text>
+      </View>
+
+      {/* Forecast Section */}
       <View style={styles.secondaryView}>
         <Text style={styles.header}>📈 Forecast: Income vs Expense</Text>
 
@@ -174,9 +210,46 @@ export default function ForecastingScreen() {
 }
 
 const styles = StyleSheet.create({
-  mainView: {
-    flex: 1, 
-    backgroundColor: '#4E008E' 
+  mainView: { flex: 1, backgroundColor: '#4E008E' },
+  balanceSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 15,
+    backgroundColor: '#4E008E',
+  },
+  verticalDivider: {
+    width: 1,
+    height: '70%',
+    backgroundColor: '#C3A1FF',
+  },
+  balanceColumn: {
+    alignItems: 'center',
+    width: '45%',
+  },
+  balanceLabel: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  balanceValue: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  balanceBreakdown: {
+    backgroundColor: '#4E008E',
+    paddingBottom: 20,
+    paddingHorizontal: 30,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  breakdownText: {
+    color: '#D3D3D3',
+    fontSize: 14,
   },
   secondaryView: {
     flex: 1,
@@ -184,7 +257,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 65,
     borderTopRightRadius: 65,
     padding: 20,
-    marginTop: 250,
+    marginTop: 10,
     alignItems: 'center',
   },
   scrollViewContent: {
@@ -282,11 +355,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    zIndex: 10,
   },
   backButtonText: {
     color: '#FFFFFF',
