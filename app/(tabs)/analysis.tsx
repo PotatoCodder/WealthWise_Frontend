@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,27 +7,72 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
-import { RefreshControl } from 'react-native';
-
 import { BarChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function AnalysisScreen() {
   const router = useRouter();
-
   const [barData, setBarData] = useState({
     labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
     datasets: [{ data: [0, 0, 0, 0] }],
   });
-
   const [loading, setLoading] = useState(true);
-  const [lastFetchedDate, setLastFetchedDate] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [lastFetchedDate, setLastFetchedDate] = useState(null);
+
+  const [balanceCash, setBalanceCash] = useState(0);
+  const [balanceCard, setBalanceCard] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBalanceAndExpense();
+    }, [])
+  );
+
+  const fetchBalanceAndExpense = async () => {
+    try {
+      const userString = await AsyncStorage.getItem('user');
+      const user = JSON.parse(userString || '{}');
+      const userId = user.email;
+
+      const [expenseRes, balanceRes] = await Promise.all([
+        fetch(`http://192.168.0.104:3000/api/get-expenses?userId=${userId}`),
+        fetch(`http://192.168.0.104:3000/api/get-balance?userId=${userId}`),
+      ]);
+
+      const expenseJson = await expenseRes.json();
+      const balanceJson = await balanceRes.json();
+
+      const now = new Date();
+      const thisMonth = now.getMonth();
+      const thisYear = now.getFullYear();
+
+      const thisMonthExpenses = expenseJson.expenses?.filter((item) => {
+        const date = new Date(item.date + 'T00:00:00');
+        return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+      }) || [];
+
+      const total = thisMonthExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+      setTotalExpense(total);
+
+      const balances = balanceJson.balances || [];
+      const cashTotal = balances.filter((b) => b.type === 'Cash').reduce((sum, b) => sum + parseFloat(b.amount || 0), 0);
+      const cardTotal = balances.filter((b) => b.type === 'Card').reduce((sum, b) => sum + parseFloat(b.amount || 0), 0);
+
+      setBalanceCash(cashTotal);
+      setBalanceCard(cardTotal);
+    } catch (err) {
+      console.error('🔥 Balance fetch error:', err);
+    }
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -41,26 +86,20 @@ export default function AnalysisScreen() {
       const now = new Date();
       const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-      const filtered = expenses.filter((e) => {
-        return typeof e.date === 'string' && e.date.startsWith(currentMonth);
-      });
+      const filtered = expenses.filter((e) =>
+        typeof e.date === 'string' && e.date.startsWith(currentMonth)
+      );
 
-      // Sort expenses by createdAt descending
       const sorted = [...filtered].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
-      // Compare the latest createdAt with the last one
       if (sorted.length > 0) {
         const latestDate = sorted[0].createdAt;
-        if (latestDate === lastFetchedDate) {
-          // No new data
-          return;
-        }
+        if (latestDate === lastFetchedDate) return;
         setLastFetchedDate(latestDate);
       }
 
-      // If new data is detected or first load
       const weeks = [0, 0, 0, 0];
       filtered.forEach((e) => {
         const day = parseInt(e.date.split('-')[2]);
@@ -81,27 +120,20 @@ export default function AnalysisScreen() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetchExpenses(); // Initial
-
-    const interval = setInterval(() => {
-      fetchExpenses(); // Check only if there’s new data
-    }, 5000);
-
-    return () => clearInterval(interval);
+    fetchExpenses();
   }, []);
 
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      await fetchExpenses(); // 👈 replace with your actual fetch function
+      await fetchExpenses();
+      await fetchBalanceAndExpense();
     } catch (err) {
       console.error('❌ Refresh failed:', err);
     } finally {
       setRefreshing(false);
     }
   };
-
 
   return (
     <View style={styles.mainView}>
@@ -116,9 +148,23 @@ export default function AnalysisScreen() {
           />
         }
       >
-
+        {/* Header Copy from Forecast */}
         <View style={styles.header}>
-          <Text style={styles.pageTitle}>Monthly Expense Analysis</Text>
+          <View style={styles.balanceSummary}>
+            <View style={styles.balanceColumn}>
+              <Text style={styles.balanceLabel}>Total Balance</Text>
+              <Text style={styles.balanceValue}>₱{(balanceCash + balanceCard).toFixed(2)}</Text>
+            </View>
+            <View style={styles.verticalDivider} />
+            <View style={styles.balanceColumn}>
+              <Text style={styles.balanceLabel}>Total Expense</Text>
+              <Text style={styles.balanceValue}>₱{totalExpense.toFixed(2)}</Text>
+            </View>
+          </View>
+          <View style={styles.balanceBreakdown}>
+            <Text style={styles.breakdownText}>💵 Cash: ₱{balanceCash.toFixed(2)}</Text>
+            <Text style={styles.breakdownText}>💳 Card: ₱{balanceCard.toFixed(2)}</Text>
+          </View>
         </View>
 
         <View style={styles.chartContainer}>
@@ -184,31 +230,49 @@ export default function AnalysisScreen() {
 }
 
 const styles = StyleSheet.create({
-  mainView: {
-    flex: 1,
+  mainView: { flex: 1, backgroundColor: '#4E008E' },
+scroll: {
+  flexGrow: 1,
+  paddingTop: 20,
+},
+
+header: {
+  backgroundColor: '#4E008E',
+  paddingTop: 40,
+  paddingBottom: 15,
+},
+
+  balanceSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+  },
+  verticalDivider: {
+    width: 1,
+    height: '70%',
+    backgroundColor: '#C3A1FF',
+  },
+  balanceColumn: { alignItems: 'center', width: '45%' },
+  balanceLabel: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
+  balanceValue: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginTop: 5 },
+  balanceBreakdown: {
     backgroundColor: '#4E008E',
+    paddingBottom: 20,
+    paddingHorizontal: 30,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  scroll: {
-    flexGrow: 1,
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 24,
-  },
-  pageTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
+  breakdownText: { color: '#D3D3D3', fontSize: 14 },
   chartContainer: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 65,
     borderTopRightRadius: 65,
-    paddingTop: 24,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-    marginTop: -30,
+    paddingTop: 34,
+    paddingBottom: 300,
+    paddingHorizontal: 25,
+    marginTop: 100,
   },
   chartTitle: {
     color: '#4E008E',
@@ -216,9 +280,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  chart: {
-    borderRadius: 16,
-  },
+  chart: { borderRadius: 16 },
   iconContainer: {
     position: 'absolute',
     top: 20,

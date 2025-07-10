@@ -75,6 +75,15 @@ export default function RootLayout() {
             headerTintColor: '#fff'
           }}
         />
+        <Stack.Screen
+          name='NotificationScreen'
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: 'Notification',
+            headerTintColor: '#fff'
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
 

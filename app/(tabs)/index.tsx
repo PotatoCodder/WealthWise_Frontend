@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router'
 
 export default function HomeScreen() {
   const [username, setUsername] = useState('User');
@@ -19,6 +20,8 @@ export default function HomeScreen() {
   const [groupedExpenses, setGroupedExpenses] = useState({});
   const [totalCash, setTotalCash] = useState(0);
   const [totalCard, setTotalCard] = useState(0);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -144,10 +147,12 @@ export default function HomeScreen() {
           style={styles.profileImage}
         />
         <Text style={styles.greetingText}>Hello, {username}</Text>
-        <Image
-          source={require('../../assets/images/Icon-Notification.png')}
-          style={styles.notificationIcon}
-        />
+        <TouchableOpacity onPress={() => router.push('/screens/Notification')}>
+          <Image
+            source={require('../../assets/images/Icon-Notification.png')}
+            style={styles.notificationIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonRow}>
