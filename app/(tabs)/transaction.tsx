@@ -12,6 +12,8 @@ import {
 import { LineChart } from 'react-native-chart-kit';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NotificationBtn from '@/components/NotificationBtn';
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -122,7 +124,15 @@ export default function ForecastingScreen() {
 
   return (
     <View style={styles.mainView}>
-      {/* Summary with divider */}
+      <View style={styles.topRow}>
+        <View style={styles.forecastingTextWrapper}>
+          <Text style={styles.forecastingText}>📊 Forecasting</Text>
+        </View>
+        <View style={styles.notificationWrapper}>
+          <NotificationBtn />
+        </View>
+      </View>
+
       <View style={styles.balanceSummary}>
         <View style={styles.balanceColumn}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
@@ -135,13 +145,11 @@ export default function ForecastingScreen() {
         </View>
       </View>
 
-      {/* Cash & Card Breakdown */}
       <View style={styles.balanceBreakdown}>
         <Text style={styles.breakdownText}>💵 Cash: ₱{balanceCash.toFixed(2)}</Text>
         <Text style={styles.breakdownText}>💳 Card: ₱{balanceCard.toFixed(2)}</Text>
       </View>
 
-      {/* Forecast Section */}
       <View style={styles.secondaryView}>
         <Text style={styles.header}>📈 Forecast: Income vs Expense</Text>
 
@@ -175,24 +183,24 @@ export default function ForecastingScreen() {
               <Text style={styles.predictionLabel}>🔮 Predicted Summary:</Text>
               <View style={styles.predictionRow}>
                 <View style={styles.predictionBox}>
-                  <Text style={styles.predictionIcon}>📥</Text>
+                  <FontAwesome5 name="money-bill-wave" size={28} color="#4E008E" style={{ marginBottom: 4 }} />
                   <Text style={styles.predictionValue}>₱{income.toFixed(2)}</Text>
                   <Text style={styles.predictionSub}>This Month Income</Text>
                 </View>
                 <View style={styles.predictionBox}>
-                  <Text style={styles.predictionIcon}>📤</Text>
+                  <MaterialIcons name="money-off" size={28} color="#4E008E" style={{ marginBottom: 4 }} />
                   <Text style={styles.predictionValue}>₱{expense.toFixed(2)}</Text>
                   <Text style={styles.predictionSub}>This Month Expense</Text>
                 </View>
               </View>
               <View style={styles.predictionRow}>
                 <View style={styles.predictionBox}>
-                  <Text style={styles.predictionIcon}>🔮</Text>
+                  <Ionicons name="trending-up" size={28} color="#4E008E" style={{ marginBottom: 4 }} />
                   <Text style={styles.predictionValue}>₱{predictedIncome}</Text>
                   <Text style={styles.predictionSub}>Predicted Income</Text>
                 </View>
                 <View style={styles.predictionBox}>
-                  <Text style={styles.predictionIcon}>🔮</Text>
+                  <Ionicons name="trending-down" size={28} color="#4E008E" style={{ marginBottom: 4 }} />
                   <Text style={styles.predictionValue}>₱{predictedExpense}</Text>
                   <Text style={styles.predictionSub}>Predicted Expense</Text>
                 </View>
@@ -211,6 +219,28 @@ export default function ForecastingScreen() {
 
 const styles = StyleSheet.create({
   mainView: { flex: 1, backgroundColor: '#4E008E' },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+  },
+  forecastingTextWrapper: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  forecastingText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  notificationWrapper: {
+    position: 'absolute',
+    right: 20,
+    top: 50,
+    zIndex: 10,
+  },
   balanceSummary: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',

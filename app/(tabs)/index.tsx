@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router'
+import { useRouter } from 'expo-router';
+import NotificationBtn from '@/components/NotificationBtn';
+import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const [username, setUsername] = useState('User');
@@ -104,15 +106,21 @@ export default function HomeScreen() {
       return loading ? (
         <ActivityIndicator size="large" color="#4E008E" />
       ) : (
-        <View>
-          <Text style={styles.balanceText}>💵 Cash Balance: ₱{totalCash.toFixed(2)}</Text>
-          <Text style={styles.balanceText}>💳 Card Balance: ₱{totalCard.toFixed(2)}</Text>
+        <View style={styles.cardBox}>
+          <FontAwesome5 name="wallet" size={40} color="#4E008E" style={{ marginBottom: 10 }} />
+          <Text style={styles.balanceText}>Cash: ₱{totalCash.toFixed(2)}</Text>
+          <Text style={styles.balanceText}>Card: ₱{totalCard.toFixed(2)}</Text>
         </View>
       );
     }
 
     if (activeTab === 'Total') {
-      return <Text style={styles.placeholderText}>🚧 Total tab under construction</Text>;
+      return (
+        <View style={styles.cardBox}>
+          <Ionicons name="construct" size={40} color="#FF6F61" style={{ marginBottom: 10 }} />
+          <Text style={styles.placeholderText}>🚧 Total tab under construction</Text>
+        </View>
+      );
     }
 
     if (loading) {
@@ -129,9 +137,10 @@ export default function HomeScreen() {
           <View key={index}>
             <Text style={styles.dateText}>{month}</Text>
             {items.map((item) => (
-              <Text key={item.id} style={styles.entryText}>
-                {item.title}: ₱{item.amount}
-              </Text>
+              <View key={item.id} style={styles.expenseItem}>
+                <MaterialIcons name="receipt" size={20} color="#4E008E" style={{ marginRight: 10 }} />
+                <Text style={styles.entryText}>{item.title}: ₱{item.amount}</Text>
+              </View>
             ))}
           </View>
         ))}
@@ -147,16 +156,15 @@ export default function HomeScreen() {
           style={styles.profileImage}
         />
         <Text style={styles.greetingText}>Hello, {username}</Text>
-        <TouchableOpacity onPress={() => router.push('/screens/Notification')}>
-          <Image
-            source={require('../../assets/images/Icon-Notification.png')}
-            style={styles.notificationIcon}
-          />
-        </TouchableOpacity>
+        <NotificationBtn />
       </View>
 
       <View style={styles.buttonRow}>
-        {['Balance', 'Expense', 'Total'].map((label) => (
+        {[
+          { label: 'Balance', icon: <FontAwesome5 name="money-bill-wave" size={16} color="#fff" /> },
+          { label: 'Expense', icon: <MaterialIcons name="money-off" size={20} color="#fff" /> },
+          { label: 'Total', icon: <Ionicons name="ios-bar-chart" size={18} color="#fff" /> },
+        ].map(({ label, icon }) => (
           <TouchableOpacity
             key={label}
             style={[
@@ -165,10 +173,7 @@ export default function HomeScreen() {
             ]}
             onPress={() => setActiveTab(label)}
           >
-            <Image
-              source={require('../../assets/images/wallet.png')}
-              style={styles.iconImage}
-            />
+            {icon}
             <Text style={styles.walletLabel}>{label}</Text>
           </TouchableOpacity>
         ))}
@@ -195,13 +200,13 @@ const styles = StyleSheet.create({
   },
   profileImage: { width: 45, height: 45, borderRadius: 20 },
   greetingText: { color: '#fff', fontSize: 18, fontWeight: '600' },
-  notificationIcon: { width: 34, height: 34 },
+
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingHorizontal: 16,
     paddingBottom: 20,
-    marginTop: 25,
+    marginTop: 10,
   },
   iconButton: {
     flexDirection: 'row',
@@ -216,13 +221,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  iconImage: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-    marginRight: 8,
-  },
-  walletLabel: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  walletLabel: { color: '#FFFFFF', fontSize: 16, fontWeight: '600', marginLeft: 8 },
   contentWrapper: { flex: 1, position: 'relative' },
   secondaryView: {
     flex: 1,
@@ -231,6 +230,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 65,
     padding: 20,
     marginTop: 40,
+  },
+  cardBox: {
+    alignItems: 'center',
+    backgroundColor: '#F7F2FF',
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 20,
+    elevation: 2,
   },
   dateText: {
     fontWeight: 'bold',
@@ -248,8 +255,15 @@ const styles = StyleSheet.create({
   entryText: {
     color: '#4E008E',
     fontSize: 16,
-    marginBottom: 6,
-    left: 40,
+  },
+  expenseItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFE7FF',
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 8,
+    marginHorizontal: 20,
   },
   noData: {
     fontSize: 16,
@@ -267,9 +281,9 @@ const styles = StyleSheet.create({
     bottom: 120,
     right: 20,
     backgroundColor: '#4E008E',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
@@ -281,7 +295,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: '#FFFFFF',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
   },
   balanceText: {

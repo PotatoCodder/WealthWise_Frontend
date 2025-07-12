@@ -16,8 +16,6 @@ import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const screenWidth = Dimensions.get('window').width;
-
 export default function SearchScreen() {
   const router = useRouter();
   const [category, setCategory] = useState('');

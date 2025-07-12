@@ -10,6 +10,8 @@ import {
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import NotificationBtn from '@/components/NotificationBtn';
+import { FontAwesome5, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 export default function CategoryDetails() {
   const [user, setUser] = useState(null);
@@ -64,17 +66,17 @@ export default function CategoryDetails() {
 
   const getCategoryIcon = (label) => {
     const icons = {
-      Food: '🍔',
-      Transport: '🚌',
-      Medicine: '💊',
-      Groceries: '🛒',
-      Rent: '🏠',
-      Gifts: '🎁',
-      Savings: '💰',
-      Entertainment: '🎉',
-      More: '➕',
+      Food: <MaterialCommunityIcons name="food" size={24} color="#4E008E" />,
+      Transport: <MaterialCommunityIcons name="bus" size={24} color="#4E008E" />,
+      Medicine: <MaterialCommunityIcons name="pill" size={24} color="#4E008E" />,
+      Groceries: <MaterialCommunityIcons name="cart" size={24} color="#4E008E" />,
+      Rent: <FontAwesome5 name="home" size={24} color="#4E008E" />,
+      Gifts: <MaterialCommunityIcons name="gift" size={24} color="#4E008E" />,
+      Savings: <FontAwesome5 name="piggy-bank" size={24} color="#4E008E" />,
+      Entertainment: <MaterialCommunityIcons name="party-popper" size={24} color="#4E008E" />,
+      More: <MaterialCommunityIcons name="dots-horizontal" size={24} color="#4E008E" />,
     };
-    return icons[label] || '❓';
+    return icons[label] || <Ionicons name="help-circle" size={24} color="#4E008E" />;
   };
 
   return (
@@ -85,10 +87,7 @@ export default function CategoryDetails() {
           style={styles.profileImage}
         />
         <Text style={styles.greetingText}>Hello, {user?.email?.split('@')[0] || 'User'}</Text>
-        <Image
-          source={require('../../assets/images/Icon-Notification.png')}
-          style={styles.notificationIcon}
-        />
+        <NotificationBtn />
       </View>
 
       <View style={styles.balanceSummary}>
@@ -109,36 +108,41 @@ export default function CategoryDetails() {
       </View>
 
       <View style={styles.secondaryView}>
-        <View style={styles.gridContainer}>
-          {['Food','Transport','Medicine','Groceries','Rent','Gifts','Savings','Entertainment','More'].map((label, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.gridButton}
-              onPress={() =>
-                router.push({ pathname: '/screens/categoryFetch', params: { category: label } })
-              }
-            >
-              <View style={styles.iconCircle}>
-                <Text style={styles.iconEmoji}>{getCategoryIcon(label)}</Text>
-              </View>
-              <Text style={styles.iconLabel}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <ScrollView>
+          <View style={styles.gridContainer}>
+            {['Food','Transport','Medicine','Groceries','Rent','Gifts','Savings','Entertainment','More'].map((label, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.gridButton}
+                onPress={() =>
+                  router.push({ pathname: '/screens/categoryFetch', params: { category: label } })
+                }
+              >
+                <View style={styles.iconCircle}>
+                  {getCategoryIcon(label)}
+                </View>
+                <Text style={styles.iconLabel}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {loading ? (
-          <ActivityIndicator size="large" color="#4E008E" />
-        ) : (
-          <ScrollView>
-            {expenses.map((item, index) => (
+          <Text style={styles.overallLabel}>Overall</Text>
+
+          {loading ? (
+            <ActivityIndicator size="large" color="#4E008E" />
+          ) : (
+            expenses.map((item, index) => (
               <View key={index} style={styles.expenseItem}>
-                <Text style={styles.expenseTitle}>{item.title}</Text>
-                <Text style={styles.expenseDetails}>{item.category} - {item.date}</Text>
+                <MaterialCommunityIcons name="file-document" size={20} color="#4E008E" style={{ marginRight: 10 }} />
+                <View>
+                  <Text style={styles.expenseTitle}>{item.title}</Text>
+                  <Text style={styles.expenseDetails}>{item.category} - {item.date}</Text>
+                </View>
                 <Text style={styles.expenseAmount}>₱{item.amount}</Text>
               </View>
-            ))}
-          </ScrollView>
-        )}
+            ))
+          )}
+        </ScrollView>
       </View>
     </View>
   );
@@ -155,7 +159,6 @@ const styles = StyleSheet.create({
   },
   profileImage: { width: 45, height: 45, borderRadius: 20 },
   greetingText: { color: '#fff', fontSize: 18, fontWeight: '600' },
-  notificationIcon: { width: 34, height: 34 },
   balanceSummary: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -207,15 +210,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
-  iconEmoji: { fontSize: 26 },
   iconLabel: { fontSize: 14, fontWeight: '500', textAlign: 'center', color: '#4E008E' },
+  overallLabel: { fontSize: 18, fontWeight: 'bold', color: '#4E008E', marginBottom: 10, marginLeft: 10 },
   expenseItem: {
-    backgroundColor: '#f5f5f5',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F7F2FF',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
+    marginHorizontal: 10,
   },
-  expenseTitle: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  expenseDetails: { color: '#555', marginBottom: 6 },
+  expenseTitle: { fontSize: 16, fontWeight: '600', marginBottom: 2, color: '#4E008E' },
+  expenseDetails: { color: '#555', fontSize: 13 },
   expenseAmount: { fontSize: 16, fontWeight: 'bold', color: '#4E008E' },
 });

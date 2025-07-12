@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import NotificationBtn from '@/components/NotificationBtn';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -148,8 +149,10 @@ export default function AnalysisScreen() {
           />
         }
       >
-        {/* Header Copy from Forecast */}
         <View style={styles.header}>
+          <View style={styles.notificationRow}>
+            <NotificationBtn />
+          </View>
           <View style={styles.balanceSummary}>
             <View style={styles.balanceColumn}>
               <Text style={styles.balanceLabel}>Total Balance</Text>
@@ -168,19 +171,13 @@ export default function AnalysisScreen() {
         </View>
 
         <View style={styles.chartContainer}>
-          <Text style={styles.chartTitle}>This Month's Expenses</Text>
+          <Text style={styles.chartTitle}>📊 This Month's Expenses</Text>
 
           <View style={styles.iconContainer}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => router.push('/screens/search')}
-            >
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/screens/search')}>
               <Ionicons name="search" size={22} color="#4E008E" />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => router.push('/screens/Calendar')}
-            >
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/screens/Calendar')}>
               <Ionicons name="calendar" size={22} color="#4E008E" />
             </TouchableOpacity>
           </View>
@@ -213,15 +210,9 @@ export default function AnalysisScreen() {
 
           <TouchableOpacity
             onPress={() => router.push('/screens/detailedAnalysis.tsx')}
-            style={{
-              marginTop: 24,
-              padding: 12,
-              backgroundColor: '#8C52FF',
-              borderRadius: 10,
-              alignItems: 'center',
-            }}
+            style={styles.analysisBtn}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Go to Detailed Analysis</Text>
+            <Text style={styles.analysisText}>Go to Detailed Analysis</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -231,22 +222,31 @@ export default function AnalysisScreen() {
 
 const styles = StyleSheet.create({
   mainView: { flex: 1, backgroundColor: '#4E008E' },
-scroll: {
-  flexGrow: 1,
-  paddingTop: 20,
-},
-
-header: {
-  backgroundColor: '#4E008E',
-  paddingTop: 40,
-  paddingBottom: 15,
-},
-
+  scroll: {
+    flexGrow: 1,
+    paddingTop: 20,
+  },
+  header: {
+    backgroundColor: '#4E008E',
+    paddingTop: 40,
+    paddingBottom: 15,
+    paddingHorizontal: 25,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  notificationRow: {
+    alignItems: 'flex-end',
+    marginBottom: 10,
+  },
   balanceSummary: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingHorizontal: 20,
     paddingBottom: 15,
   },
   verticalDivider: {
@@ -256,15 +256,13 @@ header: {
   },
   balanceColumn: { alignItems: 'center', width: '45%' },
   balanceLabel: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
-  balanceValue: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginTop: 5 },
+  balanceValue: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginTop: 5 },
   balanceBreakdown: {
-    backgroundColor: '#4E008E',
-    paddingBottom: 20,
-    paddingHorizontal: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
-  breakdownText: { color: '#D3D3D3', fontSize: 14 },
+  breakdownText: { color: '#E0D6FF', fontSize: 13 },
   chartContainer: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 65,
@@ -272,13 +270,19 @@ header: {
     paddingTop: 34,
     paddingBottom: 300,
     paddingHorizontal: 25,
-    marginTop: 100,
+    marginTop: 60,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   chartTitle: {
     color: '#4E008E',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   chart: { borderRadius: 16 },
   iconContainer: {
@@ -291,7 +295,25 @@ header: {
   },
   iconButton: {
     backgroundColor: '#EEE6FF',
-    padding: 6,
+    padding: 8,
     borderRadius: 20,
+    elevation: 2,
+  },
+  analysisBtn: {
+    marginTop: 24,
+    padding: 12,
+    backgroundColor: '#8C52FF',
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  analysisText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
